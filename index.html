@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>청년미래적금 vs 청년도약계좌 계산기</title>
+<title>청년미래적금 기여금 계산기</title>
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -33,7 +33,6 @@
     overflow-x: hidden;
   }
 
-  /* Background grid */
   body::before {
     content: '';
     position: fixed;
@@ -53,16 +52,8 @@
     pointer-events: none;
     z-index: 0;
   }
-  .glow-orb-1 {
-    width: 500px; height: 500px;
-    background: rgba(59,130,246,0.08);
-    top: -100px; left: -100px;
-  }
-  .glow-orb-2 {
-    width: 400px; height: 400px;
-    background: rgba(139,92,246,0.06);
-    bottom: -50px; right: -50px;
-  }
+  .glow-orb-1 { width: 500px; height: 500px; background: rgba(59,130,246,0.08); top: -100px; left: -100px; }
+  .glow-orb-2 { width: 400px; height: 400px; background: rgba(139,92,246,0.06); bottom: -50px; right: -50px; }
 
   .container {
     position: relative;
@@ -72,7 +63,6 @@
     padding: 40px 20px 80px;
   }
 
-  /* Header */
   .header {
     text-align: center;
     margin-bottom: 48px;
@@ -105,75 +95,23 @@
     -webkit-text-fill-color: transparent;
   }
 
-  .header p {
-    color: var(--text2);
-    font-size: 15px;
-    line-height: 1.6;
-  }
+  .header p { color: var(--text2); font-size: 15px; line-height: 1.6; }
 
-  /* Step indicators */
-  .steps {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    margin-bottom: 40px;
-  }
-
-  .step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .step-num {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text3);
-    background: var(--surface);
-    transition: all 0.3s;
-    position: relative;
-    z-index: 1;
-  }
-
-  .step.active .step-num {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(59,130,246,0.1);
-    box-shadow: 0 0 20px rgba(59,130,246,0.3);
-  }
-
-  .step.done .step-num {
-    border-color: var(--green);
-    color: white;
-    background: var(--green);
-  }
-
-  .step-label {
-    font-size: 11px;
-    color: var(--text3);
-    white-space: nowrap;
-  }
-
-  .step.active .step-label { color: var(--accent); }
-  .step.done .step-label { color: var(--green); }
-
-  .step-line {
-    width: 60px;
-    height: 2px;
+  .progress-bar {
+    height: 3px;
     background: var(--border);
-    margin-bottom: 18px;
-    transition: background 0.3s;
+    border-radius: 2px;
+    margin-bottom: 40px;
+    overflow: hidden;
   }
 
-  .step-line.done { background: var(--green); }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
 
-  /* Cards */
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -205,19 +143,12 @@
     border-radius: 2px;
   }
 
-  /* Form elements */
-  label {
-    display: block;
-    font-size: 14px;
-    color: var(--text2);
-    margin-bottom: 8px;
-    font-weight: 500;
-  }
+  label { display: block; font-size: 14px; color: var(--text2); margin-bottom: 8px; font-weight: 500; }
 
   .field { margin-bottom: 20px; }
   .field:last-child { margin-bottom: 0; }
 
-  input[type="number"], input[type="text"] {
+  input[type="number"] {
     width: 100%;
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -231,19 +162,15 @@
     outline: none;
   }
 
-  input[type="number"]:focus, input[type="text"]:focus {
+  input[type="number"]:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
   }
 
   input[type="number"]::placeholder { color: var(--text3); }
 
-  .input-with-unit {
-    position: relative;
-  }
-
+  .input-with-unit { position: relative; }
   .input-with-unit input { padding-right: 60px; }
-
   .unit {
     position: absolute;
     right: 16px;
@@ -255,17 +182,37 @@
     pointer-events: none;
   }
 
-  /* Radio / Select groups */
+  /* 안내 박스 */
+  .info-box {
+    background: rgba(59,130,246,0.07);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--accent2);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .info-box .icon { flex-shrink: 0; margin-top: 1px; }
+
+  .hint {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
   .radio-group {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 10px;
   }
 
-  .radio-option {
-    cursor: pointer;
-  }
-
+  .radio-option { cursor: pointer; }
   .radio-option input { display: none; }
 
   .radio-label {
@@ -299,9 +246,27 @@
     background: rgba(59,130,246,0.04);
   }
 
-  /* Slider */
-  .slider-wrap {
-    margin-top: 8px;
+  /* 가구원수 선택 — 숫자형 버튼 */
+  .household-group {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  .household-group .radio-label {
+    padding: 12px 6px;
+    font-size: 14px;
+    gap: 2px;
+  }
+
+  .household-group .radio-label small {
+    font-size: 10px;
+    color: var(--text3);
+    font-weight: 400;
+  }
+
+  .household-group .radio-option input:checked + .radio-label small {
+    color: var(--accent2);
   }
 
   input[type="range"] {
@@ -324,29 +289,10 @@
     border: 2px solid white;
   }
 
-  .slider-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: var(--text3);
-  }
+  .slider-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text3); }
+  .slider-value { text-align: center; font-size: 28px; font-weight: 800; color: var(--accent); margin-bottom: 4px; }
+  .slider-sub { text-align: center; font-size: 12px; color: var(--text3); margin-bottom: 12px; }
 
-  .slider-value {
-    text-align: center;
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--accent);
-    margin-bottom: 4px;
-  }
-
-  .slider-sub {
-    text-align: center;
-    font-size: 12px;
-    color: var(--text3);
-    margin-bottom: 12px;
-  }
-
-  /* Button */
   .btn-calc {
     width: 100%;
     padding: 18px;
@@ -360,24 +306,11 @@
     cursor: pointer;
     transition: all 0.3s;
     letter-spacing: 0.02em;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-calc::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1));
-    opacity: 0;
-    transition: opacity 0.3s;
   }
 
   .btn-calc:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(59,130,246,0.4); }
-  .btn-calc:hover::after { opacity: 1; }
   .btn-calc:active { transform: translateY(0); }
 
-  /* Result section */
   #result { display: none; }
 
   .result-badge {
@@ -396,7 +329,6 @@
   .badge-gold { background: rgba(245,158,11,0.15); color: var(--gold); border: 1px solid rgba(245,158,11,0.2); }
   .badge-purple { background: rgba(139,92,246,0.15); color: var(--accent3); border: 1px solid rgba(139,92,246,0.2); }
 
-  /* Contribution result */
   .contrib-box {
     background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(6,182,212,0.05));
     border: 1px solid rgba(59,130,246,0.2);
@@ -404,17 +336,6 @@
     padding: 28px;
     text-align: center;
     margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .contrib-box::before {
-    content: '';
-    position: absolute;
-    top: -50%; left: -50%;
-    width: 200%; height: 200%;
-    background: radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 60%);
-    pointer-events: none;
   }
 
   .contrib-percent {
@@ -427,19 +348,9 @@
     margin-bottom: 8px;
   }
 
-  .contrib-label {
-    font-size: 14px;
-    color: var(--text2);
-    margin-bottom: 16px;
-  }
+  .contrib-label { font-size: 14px; color: var(--text2); margin-bottom: 16px; }
+  .contrib-type { font-size: 18px; font-weight: 700; color: var(--text); }
 
-  .contrib-type {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text);
-  }
-
-  /* Comparison cards */
   .compare-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -447,9 +358,7 @@
     margin-bottom: 20px;
   }
 
-  @media (max-width: 500px) {
-    .compare-grid { grid-template-columns: 1fr; }
-  }
+  @media (max-width: 500px) { .compare-grid { grid-template-columns: 1fr; } }
 
   .compare-card {
     background: var(--surface2);
@@ -461,14 +370,8 @@
     position: relative;
   }
 
-  .compare-card.winner {
-    border-color: var(--green);
-    background: rgba(16,185,129,0.05);
-  }
-
-  .compare-card.loser {
-    opacity: 0.6;
-  }
+  .compare-card.winner { border-color: var(--green); background: rgba(16,185,129,0.05); }
+  .compare-card.loser { opacity: 0.6; }
 
   .winner-badge {
     position: absolute;
@@ -484,17 +387,9 @@
     white-space: nowrap;
   }
 
-  .compare-card h3 {
-    font-size: 14px;
-    color: var(--text2);
-    margin-bottom: 12px;
-  }
+  .compare-card h3 { font-size: 14px; color: var(--text2); margin-bottom: 12px; }
 
-  .compare-amount {
-    font-size: 32px;
-    font-weight: 800;
-    margin-bottom: 4px;
-  }
+  .compare-amount { font-size: 32px; font-weight: 800; margin-bottom: 4px; }
 
   .compare-card.winner .compare-amount {
     background: linear-gradient(135deg, var(--green), #06b6d4);
@@ -502,20 +397,9 @@
     -webkit-text-fill-color: transparent;
   }
 
-  .compare-detail {
-    font-size: 12px;
-    color: var(--text3);
-    line-height: 1.6;
-    margin-top: 8px;
-  }
+  .compare-detail { font-size: 12px; color: var(--text3); line-height: 1.6; margin-top: 8px; }
 
-  /* Breakdown table */
-  .breakdown {
-    background: var(--surface2);
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 20px;
-  }
+  .breakdown { background: var(--surface2); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
 
   .breakdown-row {
     display: flex;
@@ -527,48 +411,19 @@
   }
 
   .breakdown-row:last-child { border-bottom: none; }
-
   .breakdown-row .key { color: var(--text2); }
   .breakdown-row .val { font-weight: 700; color: var(--text); }
   .breakdown-row .val.green { color: var(--green); }
   .breakdown-row .val.blue { color: var(--accent); }
-  .breakdown-row .val.gold { color: var(--gold); }
 
-  /* Recommendation box */
-  .rec-box {
-    border-radius: var(--radius);
-    padding: 24px;
-    margin-bottom: 20px;
-  }
+  .rec-box { border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+  .rec-box.rec-future { background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(6,182,212,0.05)); border: 1px solid rgba(16,185,129,0.2); }
+  .rec-box.rec-doyak { background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(239,68,68,0.05)); border: 1px solid rgba(245,158,11,0.2); }
+  .rec-box.rec-neutral { background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.05)); border: 1px solid rgba(139,92,246,0.2); }
 
-  .rec-box.rec-future {
-    background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(6,182,212,0.05));
-    border: 1px solid rgba(16,185,129,0.2);
-  }
+  .rec-title { font-size: 18px; font-weight: 800; margin-bottom: 10px; }
+  .rec-text { font-size: 14px; color: var(--text2); line-height: 1.7; }
 
-  .rec-box.rec-doyak {
-    background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(239,68,68,0.05));
-    border: 1px solid rgba(245,158,11,0.2);
-  }
-
-  .rec-box.rec-neutral {
-    background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.05));
-    border: 1px solid rgba(139,92,246,0.2);
-  }
-
-  .rec-title {
-    font-size: 18px;
-    font-weight: 800;
-    margin-bottom: 10px;
-  }
-
-  .rec-text {
-    font-size: 14px;
-    color: var(--text2);
-    line-height: 1.7;
-  }
-
-  /* Warning */
   .warn-box {
     background: rgba(245,158,11,0.08);
     border: 1px solid rgba(245,158,11,0.2);
@@ -582,7 +437,19 @@
     gap: 10px;
   }
 
-  /* Reset btn */
+  .ineligible-box {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: var(--radius);
+    padding: 28px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .ineligible-icon { font-size: 48px; margin-bottom: 12px; }
+  .ineligible-title { font-size: 20px; font-weight: 800; color: var(--red); margin-bottom: 8px; }
+  .ineligible-text { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
   .btn-reset {
     width: 100%;
     padding: 14px;
@@ -597,26 +464,8 @@
     transition: all 0.2s;
   }
 
-  .btn-reset:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
+  .btn-reset:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* Ineligible */
-  .ineligible-box {
-    background: rgba(239,68,68,0.08);
-    border: 1px solid rgba(239,68,68,0.2);
-    border-radius: var(--radius);
-    padding: 28px;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-
-  .ineligible-icon { font-size: 48px; margin-bottom: 12px; }
-  .ineligible-title { font-size: 20px; font-weight: 800; color: var(--red); margin-bottom: 8px; }
-  .ineligible-text { font-size: 14px; color: var(--text2); line-height: 1.6; }
-
-  /* Animate */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -627,21 +476,24 @@
   .conditional-field { display: none; }
   .conditional-field.visible { display: block; }
 
-  /* Progress bar */
-  .progress-bar {
-    height: 3px;
-    background: var(--border);
-    border-radius: 2px;
-    margin-bottom: 40px;
-    overflow: hidden;
+  /* 중위소득 미리보기 */
+  .median-preview {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 12px;
+    font-size: 13px;
   }
 
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 2px;
-    transition: width 0.5s ease;
+  .median-preview-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    color: var(--text2);
   }
+
+  .median-preview-row span:last-child { font-weight: 700; color: var(--text); }
+  .median-preview-row.highlight span:last-child { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -652,7 +504,7 @@
 <div class="container">
 
   <div class="header fade-up">
-    <div class="header-badge">💰 2026년 6월 출시</div>
+    <div class="header-badge">💰 2026년 6월 출시 예정</div>
     <h1>청년미래적금<br><span>기여금 & 비교 계산기</span></h1>
     <p>내 상황에 맞는 기여금 비율을 확인하고<br>청년도약계좌와 무엇이 더 유리한지 알아보세요</p>
   </div>
@@ -707,70 +559,109 @@
       </div>
     </div>
 
-    <!-- 근로자용 -->
+    <!-- 근로자용 소득 -->
     <div class="conditional-field" id="field_salary">
       <div class="field">
-        <label>연간 총급여 (세전)</label>
+        <div class="info-box">
+          <span class="icon">📅</span>
+          <span><strong>2025년(작년) 연간 총급여</strong>를 입력해주세요.<br>소득·매출은 전년도 기준으로 심사합니다. (단, 6월 가입 초기에는 2024년 소득으로 우선 심사될 수 있어요)</span>
+        </div>
+        <label>2025년 연간 총급여 (세전)</label>
         <div class="input-with-unit">
           <input type="number" id="salary" placeholder="예: 4000" oninput="updateProgress()">
           <span class="unit">만원</span>
         </div>
+        <div class="hint">* 근로소득 기준 / 세전 연봉 전체 금액</div>
       </div>
     </div>
 
-    <!-- 소상공인용 -->
+    <!-- 소상공인용 매출 -->
     <div class="conditional-field" id="field_revenue">
       <div class="field">
-        <label>연 매출액</label>
+        <div class="info-box">
+          <span class="icon">📅</span>
+          <span><strong>2025년(작년) 연 매출액</strong>을 입력해주세요.<br>국세청에 신고된 전년도 매출액 기준으로 심사합니다.</span>
+        </div>
+        <label>2025년 연 매출액</label>
         <div class="input-with-unit">
           <input type="number" id="revenue" placeholder="예: 8000" oninput="updateProgress()">
           <span class="unit">만원</span>
         </div>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>가구 월 소득 합계 (본인 포함 가구원 전체)</label>
-      <div class="input-with-unit">
-        <input type="number" id="householdIncome" placeholder="예: 350" oninput="updateProgress()">
-        <span class="unit">만원</span>
-      </div>
-      <div style="font-size:12px;color:var(--text3);margin-top:6px">
-        * 2026년 1인 가구 중위소득 100% = 약 256만원 기준
+        <div class="hint">* 다수 사업장 보유 시 합산 금액 기준</div>
       </div>
     </div>
   </div>
 
-  <!-- STEP 2: 납입 계획 -->
+  <!-- STEP 2: 가구 정보 -->
+  <div class="card fade-up" style="animation-delay:0.05s">
+    <div class="card-title">가구 정보</div>
+
+    <div class="field">
+      <label>가구원 수 (본인 포함)</label>
+      <div class="hint" style="margin-bottom:10px">* 본인 + 같이 사는 가족 전체 (배우자, 부모님 등 포함)</div>
+      <div class="radio-group household-group">
+        <label class="radio-option">
+          <input type="radio" name="householdSize" value="1" onchange="onHouseholdChange()">
+          <div class="radio-label">1인<br><small>혼자</small></div>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="householdSize" value="2" onchange="onHouseholdChange()">
+          <div class="radio-label">2인<br><small>부부 등</small></div>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="householdSize" value="3" onchange="onHouseholdChange()">
+          <div class="radio-label">3인<br><small>자녀1명</small></div>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="householdSize" value="4" onchange="onHouseholdChange()">
+          <div class="radio-label">4인<br><small>자녀2명</small></div>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="householdSize" value="5" onchange="onHouseholdChange()">
+          <div class="radio-label">5인+<br><small>이상</small></div>
+        </label>
+      </div>
+
+      <!-- 중위소득 기준 미리보기 -->
+      <div class="median-preview" id="medianPreview" style="display:none">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px">📊 2026년 기준 중위소득 (선택한 가구원수)</div>
+        <div class="median-preview-row"><span>중위소득 100%</span><span id="median100"></span></div>
+        <div class="median-preview-row highlight"><span>중위소득 150% (우대형 기준)</span><span id="median150"></span></div>
+        <div class="median-preview-row highlight"><span>중위소득 200% (일반형 기준)</span><span id="median200"></span></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>가구 월 소득 합계</label>
+      <div class="hint" style="margin-bottom:8px">* 본인 포함 가구원 전체의 월 소득 합산 (부부라면 두 사람 합계)</div>
+      <div class="input-with-unit">
+        <input type="number" id="householdIncome" placeholder="예: 350" oninput="updateProgress()">
+        <span class="unit">만원</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: 납입 계획 -->
   <div class="card fade-up" style="animation-delay:0.1s">
     <div class="card-title">납입 계획</div>
 
     <div class="field">
       <div class="slider-value" id="depositVal">30만원</div>
       <div class="slider-sub">월 납입 예정 금액</div>
-      <div class="slider-wrap">
-        <input type="range" id="deposit" min="1" max="50" value="30" step="1" oninput="onSliderChange()">
-        <div class="slider-labels"><span>1만원</span><span>50만원</span></div>
-      </div>
+      <input type="range" id="deposit" min="1" max="50" value="30" step="1" oninput="onSliderChange()">
+      <div class="slider-labels"><span>1만원</span><span>50만원</span></div>
     </div>
 
-    <!-- 도약계좌 비교용 -->
     <div class="field" style="margin-top:8px">
       <label>청년도약계좌 가입 여부</label>
       <div class="radio-group" style="grid-template-columns:1fr 1fr">
         <label class="radio-option">
           <input type="radio" name="hasDoyak" value="yes" onchange="onDoyakChange()">
-          <div class="radio-label">
-            <span class="icon">✅</span>
-            가입되어 있음
-          </div>
+          <div class="radio-label"><span class="icon">✅</span>가입되어 있음</div>
         </label>
         <label class="radio-option">
           <input type="radio" name="hasDoyak" value="no" onchange="onDoyakChange()">
-          <div class="radio-label">
-            <span class="icon">❌</span>
-            미가입
-          </div>
+          <div class="radio-label"><span class="icon">❌</span>미가입</div>
         </label>
       </div>
     </div>
@@ -784,24 +675,12 @@
         </div>
       </div>
       <div class="field">
-        <label>도약계좌 정부기여금 비율 (현재 받고 있는)</label>
+        <label>도약계좌 현재 받고 있는 정부기여금 비율</label>
         <div class="radio-group" style="grid-template-columns:repeat(4,1fr)">
-          <label class="radio-option">
-            <input type="radio" name="doyakRate" value="6">
-            <div class="radio-label" style="padding:10px 6px;font-size:12px">6%</div>
-          </label>
-          <label class="radio-option">
-            <input type="radio" name="doyakRate" value="4.6">
-            <div class="radio-label" style="padding:10px 6px;font-size:12px">4.6%</div>
-          </label>
-          <label class="radio-option">
-            <input type="radio" name="doyakRate" value="3">
-            <div class="radio-label" style="padding:10px 6px;font-size:12px">3%</div>
-          </label>
-          <label class="radio-option">
-            <input type="radio" name="doyakRate" value="0">
-            <div class="radio-label" style="padding:10px 6px;font-size:12px">없음</div>
-          </label>
+          <label class="radio-option"><input type="radio" name="doyakRate" value="6"><div class="radio-label" style="padding:10px 6px;font-size:12px">6%</div></label>
+          <label class="radio-option"><input type="radio" name="doyakRate" value="4.6"><div class="radio-label" style="padding:10px 6px;font-size:12px">4.6%</div></label>
+          <label class="radio-option"><input type="radio" name="doyakRate" value="3"><div class="radio-label" style="padding:10px 6px;font-size:12px">3%</div></label>
+          <label class="radio-option"><input type="radio" name="doyakRate" value="0"><div class="radio-label" style="padding:10px 6px;font-size:12px">없음</div></label>
         </div>
       </div>
     </div>
@@ -812,7 +691,6 @@
   <!-- RESULT -->
   <div id="result" style="margin-top:32px">
 
-    <!-- 가입 불가 -->
     <div id="ineligible" style="display:none">
       <div class="ineligible-box fade-up">
         <div class="ineligible-icon">😔</div>
@@ -821,10 +699,8 @@
       </div>
     </div>
 
-    <!-- 가입 가능 -->
     <div id="eligible" style="display:none">
 
-      <!-- 기여금 결과 -->
       <div class="contrib-box fade-up">
         <div class="result-badge badge-blue" id="resultBadge">🎯 기여금 대상</div>
         <div class="contrib-percent" id="resultPercent">6%</div>
@@ -832,26 +708,20 @@
         <div class="contrib-type" id="resultType">일반형</div>
       </div>
 
-      <!-- 수령액 분석 -->
       <div class="card fade-up">
         <div class="card-title">청년미래적금 예상 수령액 (3년)</div>
         <div class="breakdown" id="futureBreakdown"></div>
       </div>
 
-      <!-- 도약 비교 -->
       <div id="compareSection" style="display:none">
         <div class="card fade-up">
           <div class="card-title">청년도약계좌 vs 청년미래적금 비교</div>
           <div class="compare-grid" id="compareGrid"></div>
         </div>
-
-        <!-- 추천 -->
         <div id="recBox" class="rec-box fade-up"></div>
       </div>
 
-      <!-- 경고 -->
       <div id="warnSection"></div>
-
       <button class="btn-reset" onclick="reset()">↩ 다시 계산하기</button>
     </div>
 
@@ -860,18 +730,32 @@
 </div>
 
 <script>
-  // 2026 가구원수별 중위소득 (월, 만원)
+  // 2026년 가구원수별 기준 중위소득 (월, 만원)
   const medianIncome2026 = {
     1: 256.4,
     2: 425.0,
     3: 543.8,
     4: 657.5,
-    5: 765.0,
+    5: 765.0
   };
 
+  function getMedian(size) {
+    return medianIncome2026[Math.min(size, 5)];
+  }
+
+  function onHouseholdChange() {
+    const size = parseInt(document.querySelector('input[name="householdSize"]:checked')?.value || 0);
+    if (!size) return;
+    const m = getMedian(size);
+    document.getElementById('medianPreview').style.display = 'block';
+    document.getElementById('median100').textContent = `월 ${Math.round(m)}만원`;
+    document.getElementById('median150').textContent = `월 ${Math.round(m * 1.5)}만원 이하`;
+    document.getElementById('median200').textContent = `월 ${Math.round(m * 2.0)}만원 이하`;
+    updateProgress();
+  }
+
   function onSliderChange() {
-    const val = document.getElementById('deposit').value;
-    document.getElementById('depositVal').textContent = val + '만원';
+    document.getElementById('depositVal').textContent = document.getElementById('deposit').value + '만원';
     updateProgress();
   }
 
@@ -895,13 +779,13 @@
   function updateProgress() {
     const age = document.getElementById('age').value;
     const jt = getJobType();
+    const size = document.querySelector('input[name="householdSize"]:checked')?.value;
     const hi = document.getElementById('householdIncome').value;
-    const dep = document.getElementById('deposit').value;
     let filled = 0;
     if (age) filled += 25;
     if (jt) filled += 25;
+    if (size) filled += 25;
     if (hi) filled += 25;
-    if (dep) filled += 25;
     document.getElementById('progressFill').style.width = filled + '%';
   }
 
@@ -914,6 +798,7 @@
     const jt = getJobType();
     const salary = parseInt(document.getElementById('salary').value) || 0;
     const revenue = parseInt(document.getElementById('revenue').value) || 0;
+    const houseSize = parseInt(document.querySelector('input[name="householdSize"]:checked')?.value || 0);
     const houseIncome = parseFloat(document.getElementById('householdIncome').value) || 0;
     const deposit = parseInt(document.getElementById('deposit').value);
     const hasDoyak = document.querySelector('input[name="hasDoyak"]:checked')?.value;
@@ -925,147 +810,79 @@
     document.getElementById('ineligible').style.display = 'none';
     document.getElementById('eligible').style.display = 'none';
 
-    // 나이 체크
-    if (!age || !jt || !houseIncome) {
+    if (!age || !jt || !houseSize || !houseIncome) {
       alert('모든 항목을 입력해주세요.');
+      document.getElementById('result').style.display = 'none';
       return;
     }
 
-    // 나이 판단
-    let effectiveAge = age;
-    if (age > 34) {
-      document.getElementById('ineligible').style.display = 'block';
-      document.getElementById('ineligibleReason').innerHTML =
-        `만 ${age}세는 기본 가입 대상(19~34세)을 초과합니다.<br>병역 이행 기간이 있다면 그 기간(최대 6년)을 차감한 나이로 재확인하세요.<br><br>또한 1991년 1월~8월생(만 35세)은 예외 가입 가능합니다.`;
-      scrollToResult();
-      return;
-    }
+    // 나이 체크
     if (age < 19) {
-      document.getElementById('ineligible').style.display = 'block';
-      document.getElementById('ineligibleReason').innerHTML = `만 ${age}세는 가입 최소 연령(19세)에 해당하지 않습니다.`;
-      scrollToResult();
+      showIneligible(`만 ${age}세는 가입 최소 연령(19세)에 해당하지 않습니다.`);
+      return;
+    }
+    if (age > 34) {
+      showIneligible(`만 ${age}세는 기본 가입 대상(19~34세)을 초과합니다.<br>병역 이행 기간이 있다면 그 기간(최대 6년)을 차감한 나이로 재확인하세요.<br><br>⭐ 1991년 1월~8월생(만 35세)은 예외 가입 가능합니다.`);
       return;
     }
 
-    // 가구 중위소득 비율 계산 (1인 기준, 실제로는 가구원수 입력받으면 더 정확)
-    const median1 = 256.4; // 2026년 1인 기준
-    const ratioTo200 = houseIncome / (median1 * 2.0) * 100;
-    const ratioTo150 = houseIncome / (median1 * 1.5) * 100;
-    const within200 = houseIncome <= median1 * 2.0;
-    const within150 = houseIncome <= median1 * 1.5;
+    // 가구 중위소득
+    const median = getMedian(houseSize);
+    const within200 = houseIncome <= median * 2.0;
+    const within150 = houseIncome <= median * 1.5;
 
-    // 소득 기준 체크
     let eligible = false;
     let contribRate = 0;
     let contribType = '';
     let badgeClass = '';
-    let ineligibleMsg = '';
 
     if (jt === 'employee') {
-      // 일반 근로자
       if (salary > 7500) {
-        ineligibleMsg = `총급여 ${salary}만원은 가입 가능 상한선(7,500만원)을 초과합니다.`;
-      } else if (!within200) {
-        ineligibleMsg = `가구 중위소득이 200%를 초과합니다.<br>현재 월 가구소득 ${houseIncome}만원 → 200% 기준 ${Math.round(median1*2)}만원`;
-      } else {
-        eligible = true;
-        if (salary <= 6000 && within200) {
-          contribRate = 6;
-          contribType = '일반형';
-          badgeClass = 'badge-blue';
-        } else {
-          // 6000~7500 비과세만
-          contribRate = 0;
-          contribType = '비과세 혜택만';
-          badgeClass = 'badge-gold';
-        }
+        showIneligible(`2025년 총급여 ${salary}만원은 가입 상한선(7,500만원)을 초과합니다.`); return;
       }
+      if (!within200) {
+        showIneligible(`가구 중위소득 200%를 초과합니다.<br>${houseSize}인 가구 기준 200% = 월 ${Math.round(median*2)}만원<br>현재 입력한 가구 월소득: ${houseIncome}만원`); return;
+      }
+      eligible = true;
+      if (salary <= 6000 && within200) { contribRate = 6; contribType = '일반형'; badgeClass = 'badge-blue'; }
+      else { contribRate = 0; contribType = '비과세 혜택만 (기여금 없음)'; badgeClass = 'badge-gold'; }
+
     } else if (jt === 'sme_new') {
-      // 중소기업 신규취업자
-      if (salary > 7500) {
-        ineligibleMsg = `총급여 ${salary}만원은 가입 가능 상한선(7,500만원)을 초과합니다.`;
-      } else if (!within200) {
-        ineligibleMsg = `가구 중위소득이 200%를 초과합니다.`;
-      } else {
-        eligible = true;
-        if (salary <= 6000 && within200) {
-          contribRate = 12;
-          contribType = '우대형 (중소기업 신규취업자)';
-          badgeClass = 'badge-green';
-        } else {
-          contribRate = 0;
-          contribType = '비과세 혜택만';
-          badgeClass = 'badge-gold';
-        }
-      }
+      if (salary > 7500) { showIneligible(`2025년 총급여 ${salary}만원은 가입 상한선(7,500만원)을 초과합니다.`); return; }
+      if (!within200) { showIneligible(`가구 중위소득 200%를 초과합니다.<br>${houseSize}인 가구 기준 200% = 월 ${Math.round(median*2)}만원`); return; }
+      eligible = true;
+      if (salary <= 6000 && within200) { contribRate = 12; contribType = '우대형 (중소기업 신규취업자)'; badgeClass = 'badge-green'; }
+      else { contribRate = 0; contribType = '비과세 혜택만 (기여금 없음)'; badgeClass = 'badge-gold'; }
+
     } else if (jt === 'sme_employed') {
-      // 중소기업 재직자
-      if (salary > 7500) {
-        ineligibleMsg = `총급여 ${salary}만원은 가입 가능 상한선(7,500만원)을 초과합니다.`;
-      } else if (!within200) {
-        ineligibleMsg = `가구 중위소득이 200%를 초과합니다.`;
-      } else {
-        eligible = true;
-        if (salary <= 3600 && within150) {
-          contribRate = 12;
-          contribType = '우대형 (중소기업 재직자)';
-          badgeClass = 'badge-green';
-        } else if (salary <= 6000 && within200) {
-          contribRate = 6;
-          contribType = '일반형';
-          badgeClass = 'badge-blue';
-        } else {
-          contribRate = 0;
-          contribType = '비과세 혜택만';
-          badgeClass = 'badge-gold';
-        }
-      }
+      if (salary > 7500) { showIneligible(`2025년 총급여 ${salary}만원은 가입 상한선(7,500만원)을 초과합니다.`); return; }
+      if (!within200) { showIneligible(`가구 중위소득 200%를 초과합니다.<br>${houseSize}인 가구 기준 200% = 월 ${Math.round(median*2)}만원`); return; }
+      eligible = true;
+      if (salary <= 3600 && within150) { contribRate = 12; contribType = '우대형 (중소기업 재직자)'; badgeClass = 'badge-green'; }
+      else if (salary <= 6000 && within200) { contribRate = 6; contribType = '일반형'; badgeClass = 'badge-blue'; }
+      else { contribRate = 0; contribType = '비과세 혜택만 (기여금 없음)'; badgeClass = 'badge-gold'; }
+
     } else if (jt === 'self_small') {
-      // 소상공인
-      if (revenue > 30000) {
-        ineligibleMsg = `연 매출 ${revenue}만원(${(revenue/10000).toFixed(1)}억원)은 가입 기준(3억원)을 초과합니다.`;
-      } else if (!within200) {
-        ineligibleMsg = `가구 중위소득이 200%를 초과합니다.`;
-      } else {
-        eligible = true;
-        if (revenue <= 10000 && within150) {
-          contribRate = 12;
-          contribType = '우대형 (소상공인)';
-          badgeClass = 'badge-green';
-        } else {
-          contribRate = 6;
-          contribType = '일반형 (소상공인)';
-          badgeClass = 'badge-blue';
-        }
-      }
+      if (revenue > 30000) { showIneligible(`2025년 연 매출 ${revenue}만원은 가입 기준(3억원)을 초과합니다.`); return; }
+      if (!within200) { showIneligible(`가구 중위소득 200%를 초과합니다.<br>${houseSize}인 가구 기준 200% = 월 ${Math.round(median*2)}만원`); return; }
+      eligible = true;
+      if (revenue <= 10000 && within150) { contribRate = 12; contribType = '우대형 (소상공인)'; badgeClass = 'badge-green'; }
+      else { contribRate = 6; contribType = '일반형 (소상공인)'; badgeClass = 'badge-blue'; }
     }
 
-    if (!eligible) {
-      document.getElementById('ineligible').style.display = 'block';
-      document.getElementById('ineligibleReason').innerHTML = ineligibleMsg;
-      scrollToResult();
-      return;
-    }
-
-    // 결과 표시
     document.getElementById('eligible').style.display = 'block';
-
-    // 기여금 결과 표시
     document.getElementById('resultBadge').className = 'result-badge ' + badgeClass;
     document.getElementById('resultBadge').textContent = contribRate > 0 ? '🎯 기여금 대상' : '💸 비과세 혜택';
     document.getElementById('resultPercent').textContent = contribRate > 0 ? contribRate + '%' : '비과세';
     document.getElementById('resultType').textContent = contribType;
 
-    // 수령액 계산 (3년, 이자율 가정 연 4% - 확정 전이므로 예시)
+    // 수령액 계산
     const months = 36;
     const totalDeposit = deposit * months;
-    const totalContrib = contribRate > 0 ? deposit * months * (contribRate / 100) : 0;
-    const assumedRate = 0.04; // 연 4% 가정 (고정금리 미발표)
-    // 적금 이자 계산 (월 복리 근사)
+    const totalContrib = deposit * months * (contribRate / 100);
+    const assumedRate = 0.04;
     let interest = 0;
-    for (let i = 1; i <= months; i++) {
-      interest += deposit * (assumedRate / 12) * (months - i + 1);
-    }
+    for (let i = 1; i <= months; i++) interest += deposit * (assumedRate / 12) * (months - i + 1);
     interest = Math.round(interest);
     const totalFuture = totalDeposit + totalContrib + interest;
 
@@ -1078,91 +895,64 @@
     `;
 
     // 도약계좌 비교
-    if (hasDoyak === 'yes') {
+    if (hasDoyak === 'yes' && doyakDeposit > 0) {
       document.getElementById('compareSection').style.display = 'block';
-
-      const doyakMonths = 60; // 5년
+      const doyakMonths = 60;
       const doyakTotal = doyakDeposit * doyakMonths;
       const doyakContrib = doyakDeposit * doyakMonths * (doyakRate / 100);
       let doyakInterest = 0;
-      for (let i = 1; i <= doyakMonths; i++) {
-        doyakInterest += doyakDeposit * (assumedRate / 12) * (doyakMonths - i + 1);
-      }
+      for (let i = 1; i <= doyakMonths; i++) doyakInterest += doyakDeposit * (assumedRate / 12) * (doyakMonths - i + 1);
       doyakInterest = Math.round(doyakInterest);
       const totalDoyak = doyakTotal + doyakContrib + doyakInterest;
 
-      // 연환산 수익률 비교
       const futureAnnual = ((totalFuture / totalDeposit) - 1) / 3 * 100;
-      const doyakAnnual = doyakDeposit > 0 ? ((totalDoyak / doyakTotal) - 1) / 5 * 100 : 0;
-
-      const futureWins = futureAnnual >= doyakAnnual || contribRate >= 12;
+      const doyakAnnual = ((totalDoyak / doyakTotal) - 1) / 5 * 100;
+      const futureWins = contribRate >= 12 || futureAnnual >= doyakAnnual;
 
       document.getElementById('compareGrid').innerHTML = `
         <div class="compare-card ${futureWins ? 'winner' : 'loser'}">
           ${futureWins ? '<div class="winner-badge">🏆 유리</div>' : ''}
           <h3>청년미래적금</h3>
           <div class="compare-amount">${Math.round(totalFuture)}만원</div>
-          <div class="compare-detail">
-            3년 만기<br>
-            기여금 ${contribRate}% (+${Math.round(totalContrib)}만원)<br>
-            연환산 수익률 <strong>≈ ${futureAnnual.toFixed(1)}%</strong>
-          </div>
+          <div class="compare-detail">3년 만기<br>기여금 ${contribRate}% (+${Math.round(totalContrib)}만원)<br>연환산 수익률 ≈ <strong>${futureAnnual.toFixed(1)}%</strong></div>
         </div>
         <div class="compare-card ${!futureWins ? 'winner' : 'loser'}">
           ${!futureWins ? '<div class="winner-badge">🏆 유리</div>' : ''}
           <h3>청년도약계좌</h3>
-          <div class="compare-amount">${doyakDeposit > 0 ? Math.round(totalDoyak) + '만원' : '미입력'}</div>
-          <div class="compare-detail">
-            5년 만기<br>
-            기여금 ${doyakRate}% (+${Math.round(doyakContrib)}만원)<br>
-            ${doyakDeposit > 0 ? `연환산 수익률 <strong>≈ ${doyakAnnual.toFixed(1)}%</strong>` : '납입액을 입력해주세요'}
-          </div>
+          <div class="compare-amount">${Math.round(totalDoyak)}만원</div>
+          <div class="compare-detail">5년 만기<br>기여금 ${doyakRate}% (+${Math.round(doyakContrib)}만원)<br>연환산 수익률 ≈ <strong>${doyakAnnual.toFixed(1)}%</strong></div>
         </div>
       `;
 
-      // 추천 메시지
       const recBox = document.getElementById('recBox');
       if (contribRate === 12) {
         recBox.className = 'rec-box rec-future fade-up';
-        recBox.innerHTML = `
-          <div class="result-badge badge-green" style="margin-bottom:12px">✅ 청년미래적금 추천</div>
-          <div class="rec-title">🎯 청년미래적금으로 갈아타세요!</div>
-          <div class="rec-text">우대형 12% 기여금 대상입니다. 3년이라는 짧은 기간에 높은 정부 기여금을 받을 수 있어 청년도약계좌(최대 6%) 대비 효율이 훨씬 높습니다. 2026년 6월 갈아타기를 적극 검토하세요.</div>
-        `;
+        recBox.innerHTML = `<div class="result-badge badge-green" style="margin-bottom:12px">✅ 청년미래적금 추천</div><div class="rec-title">🎯 청년미래적금으로 갈아타세요!</div><div class="rec-text">우대형 12% 기여금 대상입니다. 3년이라는 짧은 기간에 높은 정부 기여금을 받을 수 있어 청년도약계좌(최대 6%) 대비 효율이 훨씬 높습니다. <strong>2026년 6월 갈아타기</strong>를 적극 검토하세요.</div>`;
       } else if (doyakRate >= 6 && contribRate === 6) {
         recBox.className = 'rec-box rec-neutral fade-up';
-        recBox.innerHTML = `
-          <div class="result-badge badge-purple" style="margin-bottom:12px">⚖️ 비교 필요</div>
-          <div class="rec-title">📊 꼼꼼히 비교하세요</div>
-          <div class="rec-text">두 상품 모두 기여금 비율이 비슷합니다. 청년도약계좌는 더 오래(5년) 납입해 수령액이 크지만, 청년미래적금은 3년 후 자유롭게 운용할 수 있어요. 목돈 마련 목표 시기에 따라 선택하세요.</div>
-        `;
+        recBox.innerHTML = `<div class="result-badge badge-purple" style="margin-bottom:12px">⚖️ 비교 필요</div><div class="rec-title">📊 꼼꼼히 비교하세요</div><div class="rec-text">두 상품 모두 기여금 비율이 비슷합니다. 청년도약계좌는 더 오래(5년) 납입해 수령액이 크지만, 청년미래적금은 3년 후 자유롭게 운용할 수 있어요. 목돈 마련 목표 시기에 따라 선택하세요.</div>`;
       } else if (contribRate === 0 && doyakRate > 0) {
         recBox.className = 'rec-box rec-doyak fade-up';
-        recBox.innerHTML = `
-          <div class="result-badge badge-gold" style="margin-bottom:12px">🏦 도약계좌 유지 추천</div>
-          <div class="rec-title">청년도약계좌를 유지하세요</div>
-          <div class="rec-text">청년미래적금에서는 비과세 혜택만 받지만, 청년도약계좌에서는 ${doyakRate}% 기여금을 받고 계십니다. 도약계좌를 해지하면 오히려 손해일 수 있어요.</div>
-        `;
+        recBox.innerHTML = `<div class="result-badge badge-gold" style="margin-bottom:12px">🏦 도약계좌 유지 추천</div><div class="rec-title">청년도약계좌를 유지하세요</div><div class="rec-text">청년미래적금에서는 비과세 혜택만 받지만, 청년도약계좌에서는 ${doyakRate}% 기여금을 받고 계십니다. 도약계좌를 해지하면 오히려 손해일 수 있어요.</div>`;
       } else {
         recBox.className = 'rec-box rec-future fade-up';
-        recBox.innerHTML = `
-          <div class="result-badge badge-blue" style="margin-bottom:12px">💡 상황별 판단 필요</div>
-          <div class="rec-title">만기 기간과 목돈 계획을 고려하세요</div>
-          <div class="rec-text">3년 내 목돈이 필요하다면 청년미래적금, 5년 장기 목돈 마련이라면 청년도약계좌 유지가 유리합니다. 이자율 확정 후 재비교를 권장합니다.</div>
-        `;
+        recBox.innerHTML = `<div class="result-badge badge-blue" style="margin-bottom:12px">💡 상황별 판단 필요</div><div class="rec-title">만기 기간과 목돈 계획을 고려하세요</div><div class="rec-text">3년 내 목돈이 필요하다면 청년미래적금, 5년 장기 목돈 마련이라면 청년도약계좌 유지가 유리합니다. 이자율 확정 후 재비교를 권장합니다.</div>`;
       }
-
     } else {
       document.getElementById('compareSection').style.display = 'none';
     }
 
-    // 경고
     document.getElementById('warnSection').innerHTML = `
-      <div class="warn-box">
-        ⚠️ <span>이 계산기는 공식 계산기가 아닙니다. 이자율은 연 4%로 가정(미확정)했으며, 실제 수령액은 금융기관 확인 후 달라질 수 있습니다. 가구원수는 1인 기준으로 중위소득을 계산했습니다.</span>
+      <div class="warn-box">⚠️ <span>이 계산기는 공식 계산기가 아닙니다. 소득은 <strong>2025년(작년) 기준</strong>으로 입력해주세요. 이자율은 연 4%로 가정(미확정)했으며, 실제 수령액은 금융기관 확인 후 달라질 수 있습니다. 가구 중위소득은 2026년 기준을 적용했습니다.</span>
       </div>
     `;
 
+    scrollToResult();
+  }
+
+  function showIneligible(msg) {
+    document.getElementById('ineligible').style.display = 'block';
+    document.getElementById('ineligibleReason').innerHTML = msg;
     scrollToResult();
   }
 
