@@ -1,2 +1,790 @@
-# savings-calc
-청년미래적금 기여금 계산기
+[index.html](https://github.com/user-attachments/files/27744192/index.html)
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>청년미래적금 기여금 계산기 | 별탱의 경제이야기</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f7f5ff; --surface:#ffffff; --surface2:#f0eeff; --border:#e0d9ff;
+  --accent:#7c6ff7; --accent2:#ff8fab; --accent3:#5ec4c4;
+  --gold:#ffb347; --green:#52c98a; --red:#ff6b7a;
+  --text:#2d2640; --text2:#7a6e99; --text3:#b0a8cc; --radius:20px;
+  --shadow:0 4px 24px rgba(124,111,247,0.10);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Pretendard',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 10% 20%,rgba(124,111,247,0.07) 0%,transparent 50%),radial-gradient(ellipse at 90% 80%,rgba(255,143,171,0.07) 0%,transparent 50%);pointer-events:none;z-index:0;}
+.container{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:36px 20px 80px;}
+
+/* 헤더 */
+.header{text-align:center;margin-bottom:40px;}
+.header-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(124,111,247,0.12),rgba(255,143,171,0.12));border:1.5px solid rgba(124,111,247,0.2);border-radius:100px;padding:7px 18px;font-size:12px;font-weight:700;color:var(--accent);letter-spacing:0.04em;margin-bottom:18px;}
+.header h1{font-size:clamp(22px,5vw,34px);font-weight:900;line-height:1.25;margin-bottom:10px;}
+.header h1 .hl{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.header p{color:var(--text2);font-size:14px;line-height:1.7;}
+.deco{font-size:32px;display:block;margin-bottom:10px;}
+
+/* 진행바 */
+.progress-wrap{margin-bottom:32px;}
+.progress-label{font-size:12px;color:var(--text3);margin-bottom:6px;font-weight:600;}
+.progress-bar{height:8px;background:#ede9ff;border-radius:100px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:100px;transition:width 0.5s ease;}
+
+/* 카드 */
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:28px 24px;margin-bottom:16px;box-shadow:var(--shadow);}
+.card-title{font-size:13px;font-weight:800;letter-spacing:0.06em;color:var(--accent);text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));flex-shrink:0;}
+
+/* 폼 */
+label{display:block;font-size:14px;color:var(--text2);margin-bottom:8px;font-weight:600;}
+.field{margin-bottom:20px;}
+.field:last-child{margin-bottom:0;}
+input[type="number"]{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;color:var(--text);font-family:'Pretendard',sans-serif;font-size:15px;font-weight:600;transition:all 0.2s;outline:none;}
+input[type="number"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,111,247,0.12);background:#fff;}
+input[type="number"]::placeholder{color:var(--text3);font-weight:400;}
+.input-with-unit{position:relative;}
+.input-with-unit input{padding-right:52px;}
+.unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:13px;font-weight:700;pointer-events:none;}
+
+/* 안내박스들 */
+.income-guide{background:linear-gradient(135deg,rgba(124,111,247,0.07),rgba(94,196,196,0.05));border:1.5px solid rgba(124,111,247,0.18);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.7;margin-bottom:14px;}
+.income-guide .y-main{color:var(--accent);font-weight:800;font-size:14px;margin-bottom:6px;}
+.income-guide .y-sub{color:var(--text2);font-size:12px;padding-top:8px;border-top:1px dashed var(--border);margin-top:6px;}
+.income-guide .y-sub strong{color:var(--accent2);}
+.info-box{background:rgba(94,196,196,0.08);border:1.5px solid rgba(94,196,196,0.2);border-radius:12px;padding:12px 14px;font-size:13px;color:#3a9fa0;line-height:1.6;margin-bottom:14px;}
+.warn-inline{background:rgba(255,179,71,0.08);border:1.5px solid rgba(255,179,71,0.25);border-radius:12px;padding:12px 14px;font-size:13px;color:#c47a00;line-height:1.6;margin-bottom:14px;}
+.hint{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5;}
+
+/* 라디오 */
+.radio-group{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;}
+.radio-option{cursor:pointer;}
+.radio-option input{display:none;}
+.radio-label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:14px 10px;background:var(--surface2);border:2px solid var(--border);border-radius:14px;font-size:13px;font-weight:700;color:var(--text2);transition:all 0.2s;text-align:center;cursor:pointer;}
+.radio-label .icon{font-size:20px;}
+.radio-option input:checked+.radio-label{border-color:var(--accent);background:rgba(124,111,247,0.08);color:var(--accent);box-shadow:0 2px 12px rgba(124,111,247,0.15);}
+.radio-label:hover{border-color:rgba(124,111,247,0.4);}
+.household-group{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.household-group .radio-label{padding:12px 6px;font-size:14px;}
+.household-group .radio-label small{font-size:10px;color:var(--text3);font-weight:500;}
+
+/* 슬라이더 */
+input[type="range"]{-webkit-appearance:none;width:100%;height:8px;background:#ede9ff;border-radius:100px;outline:none;margin-bottom:8px;}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));cursor:pointer;box-shadow:0 2px 10px rgba(124,111,247,0.4);border:3px solid white;}
+.slider-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);}
+.slider-value{text-align:center;font-size:32px;font-weight:900;color:var(--accent);margin-bottom:4px;}
+.slider-sub{text-align:center;font-size:12px;color:var(--text3);margin-bottom:12px;}
+
+/* 버튼 */
+.btn-calc{width:100%;padding:18px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:16px;color:white;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:all 0.3s;box-shadow:0 6px 20px rgba(124,111,247,0.3);}
+.btn-calc:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(124,111,247,0.4);}
+.btn-reset{width:100%;padding:14px;background:transparent;border:2px solid var(--border);border-radius:14px;color:var(--text2);font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.btn-reset:hover{border-color:var(--accent);color:var(--accent);}
+
+/* 결과 배지 */
+#result{display:none;}
+.result-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;font-size:12px;font-weight:800;margin-bottom:10px;}
+.badge-green{background:rgba(82,201,138,0.15);color:var(--green);border:1.5px solid rgba(82,201,138,0.3);}
+.badge-blue{background:rgba(124,111,247,0.12);color:var(--accent);border:1.5px solid rgba(124,111,247,0.25);}
+.badge-gold{background:rgba(255,179,71,0.15);color:#c47a00;border:1.5px solid rgba(255,179,71,0.3);}
+.badge-purple{background:rgba(94,196,196,0.12);color:var(--accent3);border:1.5px solid rgba(94,196,196,0.3);}
+
+/* 기여금 결과박스 */
+.contrib-box{background:linear-gradient(135deg,rgba(124,111,247,0.08),rgba(255,143,171,0.06));border:2px solid rgba(124,111,247,0.18);border-radius:var(--radius);padding:32px 24px;text-align:center;margin-bottom:16px;box-shadow:var(--shadow);}
+.contrib-percent{font-size:80px;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;}
+.contrib-label{font-size:14px;color:var(--text2);margin-bottom:12px;}
+.contrib-type{font-size:18px;font-weight:800;color:var(--text);}
+
+/* 비교 카드 */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+@media(max-width:480px){.compare-grid{grid-template-columns:1fr;}}
+.compare-card{background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);padding:22px;text-align:center;position:relative;}
+.compare-card.winner{border-color:var(--green);background:rgba(82,201,138,0.06);}
+.compare-card.loser{opacity:0.55;}
+.winner-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--green),var(--accent3));color:white;font-size:11px;font-weight:800;padding:4px 14px;border-radius:100px;white-space:nowrap;}
+.compare-card h3{font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:700;}
+.compare-amount{font-size:30px;font-weight:900;margin-bottom:4px;color:var(--text);}
+.compare-card.winner .compare-amount{background:linear-gradient(135deg,var(--green),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.compare-detail{font-size:12px;color:var(--text3);line-height:1.8;margin-top:8px;}
+
+/* 브레이크다운 */
+.breakdown{background:var(--surface2);border-radius:14px;overflow:hidden;margin-bottom:16px;border:1.5px solid var(--border);}
+.breakdown-row{display:flex;justify-content:space-between;align-items:center;padding:13px 18px;border-bottom:1px solid var(--border);font-size:14px;}
+.breakdown-row:last-child{border-bottom:none;background:rgba(124,111,247,0.04);}
+.breakdown-row .key{color:var(--text2);font-weight:500;}
+.breakdown-row .val{font-weight:800;color:var(--text);}
+.breakdown-row .val.green{color:var(--green);}
+.breakdown-row .val.blue{color:var(--accent);}
+.breakdown-row .val.gold{color:var(--gold);}
+
+/* 추천박스 */
+.rec-box{border-radius:var(--radius);padding:22px;margin-bottom:16px;}
+.rec-box.rec-future{background:linear-gradient(135deg,rgba(82,201,138,0.1),rgba(94,196,196,0.06));border:1.5px solid rgba(82,201,138,0.25);}
+.rec-box.rec-doyak{background:linear-gradient(135deg,rgba(255,179,71,0.1),rgba(255,107,122,0.05));border:1.5px solid rgba(255,179,71,0.25);}
+.rec-box.rec-neutral{background:linear-gradient(135deg,rgba(124,111,247,0.08),rgba(94,196,196,0.05));border:1.5px solid rgba(124,111,247,0.2);}
+.rec-title{font-size:17px;font-weight:900;margin-bottom:10px;color:var(--text);}
+.rec-text{font-size:14px;color:var(--text2);line-height:1.8;}
+
+/* 경고 */
+.warn-box{background:rgba(255,179,71,0.07);border:1.5px solid rgba(255,179,71,0.2);border-radius:12px;padding:14px 16px;font-size:13px;color:#a06200;line-height:1.7;margin-bottom:16px;}
+
+/* 불가 박스 */
+.ineligible-box{background:rgba(255,107,122,0.06);border:2px solid rgba(255,107,122,0.2);border-radius:var(--radius);padding:32px;text-align:center;margin-bottom:16px;}
+.ineligible-icon{font-size:48px;margin-bottom:12px;}
+.ineligible-title{font-size:20px;font-weight:900;color:var(--red);margin-bottom:8px;}
+.ineligible-text{font-size:14px;color:var(--text2);line-height:1.7;}
+
+/* 중위소득 미리보기 */
+.median-preview{background:rgba(124,111,247,0.06);border-radius:12px;padding:14px 16px;margin-top:12px;font-size:13px;border:1px solid rgba(124,111,247,0.12);}
+.median-preview-row{display:flex;justify-content:space-between;padding:4px 0;color:var(--text2);}
+.median-preview-row span:last-child{font-weight:700;color:var(--text);}
+.median-preview-row.hl2 span:last-child{color:var(--accent);}
+
+/* 도약계좌 테이블 */
+.doyak-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px;border-radius:10px;overflow:hidden;}
+.doyak-table th{background:rgba(124,111,247,0.1);color:var(--accent);padding:9px 12px;text-align:left;font-weight:700;}
+.doyak-table td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text2);}
+.doyak-table tr:last-child td{border-bottom:none;}
+.doyak-table tr.selected td{background:rgba(124,111,247,0.07);color:var(--accent);font-weight:800;}
+.doyak-income-select{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.doyak-income-select .radio-label{padding:10px 6px;font-size:12px;}
+
+/* 갈아타기 스텝 */
+.switch-steps{display:flex;flex-direction:column;gap:10px;margin-top:14px;}
+.switch-step{display:flex;align-items:flex-start;gap:12px;}
+.switch-step-num{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.switch-step-text{font-size:13px;color:var(--text2);line-height:1.6;padding-top:4px;}
+
+/* 태그 */
+.tag{display:inline-block;padding:3px 9px;border-radius:7px;font-size:11px;font-weight:800;margin-right:4px;}
+.tag-green{background:rgba(82,201,138,0.15);color:var(--green);}
+.tag-red{background:rgba(255,107,122,0.15);color:var(--red);}
+.tag-gold{background:rgba(255,179,71,0.15);color:#c47a00;}
+
+/* FAQ */
+.faq-item{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;margin-bottom:8px;overflow:hidden;box-shadow:0 2px 8px rgba(124,111,247,0.06);}
+.faq-q{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;color:var(--text);}
+.faq-q:hover{background:rgba(124,111,247,0.03);}
+.faq-arrow{font-size:12px;color:var(--text3);transition:transform 0.3s;}
+.faq-item.open .faq-arrow{transform:rotate(180deg);}
+.faq-a{display:none;padding:14px 20px 18px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--border);}
+.faq-item.open .faq-a{display:block;}
+
+/* 인스타 푸터 */
+.insta-footer{margin-top:48px;text-align:center;padding:28px 20px;background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);box-shadow:var(--shadow);}
+.insta-footer .creator-label{font-size:12px;color:var(--text3);font-weight:600;margin-bottom:10px;letter-spacing:0.05em;}
+.insta-link{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:white;text-decoration:none;padding:12px 24px;border-radius:50px;font-size:15px;font-weight:800;transition:all 0.3s;box-shadow:0 4px 16px rgba(220,39,67,0.25);}
+.insta-link:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(220,39,67,0.35);}
+.insta-footer .desc{font-size:12px;color:var(--text3);margin-top:12px;line-height:1.6;}
+
+hr.divider{border:none;border-top:1.5px dashed var(--border);margin:10px 0 14px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp 0.45s ease forwards;}
+.conditional-field{display:none;}
+.conditional-field.visible{display:block;}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- 헤더 -->
+  <div class="header fade-up">
+    <span class="deco">💰</span>
+    <div class="header-badge">✨ 별탱의 경제이야기 | 2026년 6월 출시 예정</div>
+    <h1>청년미래적금<br><span class="hl">기여금 & 갈아타기 계산기</span></h1>
+    <p>내 기여금 비율 확인 + 청년도약계좌 비교까지<br>공식 보도자료 기준으로 정확하게 계산해드려요 🎯</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">입력 진행률</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="card fade-up">
+    <div class="card-title"><div class="dot"></div>기본 정보</div>
+
+    <div class="field">
+      <label>현재 나이 (만 나이)</label>
+      <div class="input-with-unit">
+        <input type="number" id="age" placeholder="예: 28" min="15" max="45" oninput="updateProgress()">
+        <span class="unit">세</span>
+      </div>
+      <div class="hint">* 병역 이행자는 병역 기간(최대 6년)을 차감한 나이로 입력<br>* 1991년 1월~8월생(만 35세)은 예외 가입 가능</div>
+    </div>
+
+    <div class="field">
+      <label>직업 유형</label>
+      <div class="radio-group">
+        <label class="radio-option"><input type="radio" name="jobType" value="employee" onchange="onJobTypeChange()"><div class="radio-label"><span class="icon">👔</span>일반 근로자<br><small style="font-weight:500;color:var(--text3);font-size:11px">대기업·공공기관</small></div></label>
+        <label class="radio-option"><input type="radio" name="jobType" value="employee_plus" onchange="onJobTypeChange()"><div class="radio-label"><span class="icon">💼</span>투잡 근로자<br><small style="font-weight:500;color:var(--text3);font-size:11px">근로+추가소득</small></div></label>
+        <label class="radio-option"><input type="radio" name="jobType" value="sme_new" onchange="onJobTypeChange()"><div class="radio-label"><span class="icon">🏢</span>중소기업<br>신규취업자<br><small style="font-weight:500;color:var(--text3);font-size:11px">2025년 첫취업</small></div></label>
+        <label class="radio-option"><input type="radio" name="jobType" value="sme_employed" onchange="onJobTypeChange()"><div class="radio-label"><span class="icon">🏭</span>중소기업<br>재직자<br><small style="font-weight:500;color:var(--text3);font-size:11px">기존 재직중</small></div></label>
+        <label class="radio-option"><input type="radio" name="jobType" value="self_small" onchange="onJobTypeChange()"><div class="radio-label"><span class="icon">🏪</span>소상공인<br><small style="font-weight:500;color:var(--text3);font-size:11px">자영업자</small></div></label>
+      </div>
+    </div>
+
+    <!-- 중소기업 신규 안내 -->
+    <div class="conditional-field" id="field_sme_info">
+      <div class="info-box">ℹ️ <strong>중소기업 신규취업자 기준</strong><br>
+      2025년 1월~12월에 최초 취업 + 현재 중소기업 재직 중인 자<br>
+      <span style="font-size:12px;opacity:0.85">※ 생애 최초가 아니어도 해당 기업 취업 전 고용보험 합산 1년 미만이면 신규 인정</span></div>
+    </div>
+
+    <!-- 투잡 안내 -->
+    <div class="conditional-field" id="field_twojob_info">
+      <div class="warn-inline">⚠️ <strong>투잡(복합소득) 근로자 안내</strong><br>
+      근로소득 외 사업소득·프리랜서 수입 등이 있어 종합소득세 신고 대상이 되면, <strong>총급여 기준이 아닌 종합소득 기준(6,300만원 이하)</strong>으로 심사될 가능성이 높습니다.<br>
+      <span style="font-size:12px">※ 정확한 심사 기준은 출시 후 금융기관에 문의하세요</span></div>
+    </div>
+
+    <!-- 근로자 소득 입력 -->
+    <div class="conditional-field" id="field_salary">
+      <div class="field">
+        <div class="income-guide">
+          <div class="y-main">📅 2025년(작년) 소득을 기준으로 입력해주세요</div>
+          <div class="y-sub">
+            <strong>⚡ 2026년 6월 가입 시 주의!</strong><br>
+            2025년 종합소득은 보통 7월 이후에 확정돼요.<br>
+            → 6월 가입 시에는 <strong>2024년 소득 기준으로 먼저 심사</strong>될 수 있어요.<br>
+            → 7월 이후 가입하면 2025년 소득 기준 적용 가능성이 높아요.
+          </div>
+        </div>
+        <label id="salaryLabel">2025년 연간 총급여 (세전)</label>
+        <div class="input-with-unit"><input type="number" id="salary" placeholder="예: 4000" oninput="updateProgress()"><span class="unit">만원</span></div>
+        <div class="hint" id="salaryHint">* 근로소득 기준 세전 연봉 전체 금액</div>
+      </div>
+      <!-- 투잡 종합소득 추가 -->
+      <div class="conditional-field" id="field_twojob_income">
+        <div class="field">
+          <label>2025년 종합소득 합계 (근로 + 기타소득 전부)</label>
+          <div class="input-with-unit"><input type="number" id="jonghabTwoJob" placeholder="예: 4500" oninput="updateProgress()"><span class="unit">만원</span></div>
+          <div class="hint">* 근로소득 + 사업소득 + 기타소득 합산 금액<br>* 종합소득 기준(6,300만원 이하)으로 심사됩니다</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 소상공인 입력 -->
+    <div class="conditional-field" id="field_revenue">
+      <div class="field">
+        <div class="income-guide">
+          <div class="y-main">📅 2025년(작년) 매출을 기준으로 입력해주세요</div>
+          <div class="y-sub">
+            <strong>⚡ 2026년 6월 가입 시 주의!</strong><br>
+            → 6월 가입 시에는 <strong>2024년 매출 기준으로 먼저 심사</strong>될 수 있어요.<br>
+            → 전년도 국세청 미신고 매출은 소상공인 가입 불가
+          </div>
+        </div>
+        <label>2025년 연 매출액</label>
+        <div class="input-with-unit"><input type="number" id="revenue" placeholder="예: 8000" oninput="updateProgress()"><span class="unit">만원</span></div>
+      </div>
+      <div class="field">
+        <label>2025년 종합소득 (매출 3억 초과 시 필수 입력)</label>
+        <div class="input-with-unit"><input type="number" id="jonghabSoduk" placeholder="해당없으면 0" oninput="updateProgress()"><span class="unit">만원</span></div>
+        <div class="hint">* 매출 3억 초과해도 종합소득 6,300만원 이하면 일반소득자로 가입 가능</div>
+      </div>
+    </div>
+
+    <!-- 금융소득 종합과세 -->
+    <div class="field" id="field_finance_tax" style="display:none">
+      <div class="warn-inline">⚠️ <strong>금융소득 종합과세 확인 필수</strong><br>직전 3개년(2022~2024년) 중 1회 이상 금융소득 종합과세(이자·배당 연 2,000만원 초과) 해당 시 가입 제한</div>
+      <label>금융소득 종합과세 해당 여부</label>
+      <div class="radio-group" style="grid-template-columns:1fr 1fr">
+        <label class="radio-option"><input type="radio" name="financeTax" value="no" onchange="updateProgress()"><div class="radio-label" style="padding:12px">✅ 해당 없음</div></label>
+        <label class="radio-option"><input type="radio" name="financeTax" value="yes" onchange="updateProgress()"><div class="radio-label" style="padding:12px">❌ 해당됨</div></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: 가구 정보 -->
+  <div class="card fade-up" style="animation-delay:0.05s">
+    <div class="card-title"><div class="dot"></div>가구 정보</div>
+    <div class="field">
+      <label>가구원 수 (본인 포함)</label>
+      <div class="hint" style="margin-bottom:10px">* 본인 + 같이 사는 모든 가족 포함 (배우자, 부모님 등)</div>
+      <div class="radio-group household-group">
+        <label class="radio-option"><input type="radio" name="householdSize" value="1" onchange="onHouseholdChange()"><div class="radio-label">1인<br><small>혼자</small></div></label>
+        <label class="radio-option"><input type="radio" name="householdSize" value="2" onchange="onHouseholdChange()"><div class="radio-label">2인<br><small>부부 등</small></div></label>
+        <label class="radio-option"><input type="radio" name="householdSize" value="3" onchange="onHouseholdChange()"><div class="radio-label">3인<br><small>자녀1</small></div></label>
+        <label class="radio-option"><input type="radio" name="householdSize" value="4" onchange="onHouseholdChange()"><div class="radio-label">4인<br><small>자녀2</small></div></label>
+        <label class="radio-option"><input type="radio" name="householdSize" value="5" onchange="onHouseholdChange()"><div class="radio-label">5인+<br><small>이상</small></div></label>
+      </div>
+      <div class="median-preview" id="medianPreview" style="display:none">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:600">📊 2026년 기준 중위소득 <span style="color:var(--accent2);font-size:11px">(보건복지부 고시 기준 / 공식 확정 시 변경될 수 있음)</span></div>
+        <div class="median-preview-row"><span>100%</span><span id="median100"></span></div>
+        <div class="median-preview-row hl2"><span>150% (우대형 기준)</span><span id="median150"></span></div>
+        <div class="median-preview-row hl2"><span>200% (일반형 기준)</span><span id="median200"></span></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>가구 월 소득 합계</label>
+      <div class="hint" style="margin-bottom:8px">* 본인 포함 전 가구원 월 소득 합산 (부부라면 두 사람 합계)</div>
+      <div class="input-with-unit"><input type="number" id="householdIncome" placeholder="예: 350" oninput="updateProgress()"><span class="unit">만원</span></div>
+    </div>
+  </div>
+
+  <!-- STEP 3: 납입 계획 -->
+  <div class="card fade-up" style="animation-delay:0.1s">
+    <div class="card-title"><div class="dot"></div>납입 계획</div>
+    <div class="field">
+      <div class="slider-value" id="depositVal">30만원</div>
+      <div class="slider-sub">청년미래적금 월 납입 예정 금액</div>
+      <input type="range" id="deposit" min="1" max="50" value="30" step="1" oninput="onSliderChange()">
+      <div class="slider-labels"><span>1만원</span><span>50만원</span></div>
+    </div>
+
+    <div class="field">
+      <label>청년도약계좌 가입 여부</label>
+      <div class="radio-group" style="grid-template-columns:1fr 1fr">
+        <label class="radio-option"><input type="radio" name="hasDoyak" value="yes" onchange="onDoyakChange()"><div class="radio-label"><span class="icon">✅</span>가입되어 있음</div></label>
+        <label class="radio-option"><input type="radio" name="hasDoyak" value="no" onchange="onDoyakChange()"><div class="radio-label"><span class="icon">❌</span>미가입</div></label>
+      </div>
+    </div>
+
+    <div class="conditional-field" id="field_doyak">
+      <div class="info-box" style="margin-bottom:14px">🔄 갈아타기는 <strong>2026년 6월 최초 가입기간에만</strong> 가능!<br>출시 전 도약계좌 먼저 해지하면 갈아타기 신청 불가!</div>
+
+      <!-- 도약계좌 월 납입 -->
+      <div class="field">
+        <label>도약계좌 월 납입 금액</label>
+        <div class="input-with-unit"><input type="number" id="doyakDeposit" placeholder="최대 70만원" max="70" oninput="updateProgress()"><span class="unit">만원</span></div>
+      </div>
+
+      <!-- 도약계좌 소득 → 기여금 자동계산 -->
+      <div class="field">
+        <label>도약계좌 가입 당시 연 총급여 (기여금 자동계산)</label>
+        <div class="warn-inline" style="margin-bottom:10px">
+          ⚠️ <strong>도약계좌 기여금은 매년 재심사됩니다!</strong><br>
+          가입 후 1년마다 개인소득을 재확인해 기여금 비율이 바뀔 수 있어요.<br>
+          <span style="font-size:12px">현재 적용 중인 비율을 입력하되, 향후 소득 변동 시 달라질 수 있어요.</span>
+        </div>
+        <div class="doyak-income-select">
+          <label class="radio-option"><input type="radio" name="doyakIncome" value="2400" onchange="onDoyakIncomeChange()"><div class="radio-label">2,400만원<br>이하</div></label>
+          <label class="radio-option"><input type="radio" name="doyakIncome" value="3600" onchange="onDoyakIncomeChange()"><div class="radio-label">3,600만원<br>이하</div></label>
+          <label class="radio-option"><input type="radio" name="doyakIncome" value="4800" onchange="onDoyakIncomeChange()"><div class="radio-label">4,800만원<br>이하</div></label>
+          <label class="radio-option"><input type="radio" name="doyakIncome" value="6000" onchange="onDoyakIncomeChange()"><div class="radio-label">6,000만원<br>이하</div></label>
+          <label class="radio-option"><input type="radio" name="doyakIncome" value="7500" onchange="onDoyakIncomeChange()"><div class="radio-label">6,000만원<br>초과</div></label>
+          <label class="radio-option"><input type="radio" name="doyakIncome" value="custom" onchange="onDoyakIncomeChange()"><div class="radio-label">직접입력</div></label>
+        </div>
+        <div id="doyakCustomRate" style="display:none;margin-top:10px">
+          <div class="radio-group" style="grid-template-columns:repeat(5,1fr)">
+            <label class="radio-option"><input type="radio" name="doyakRate" value="6.0"><div class="radio-label" style="padding:10px 6px;font-size:12px">6.0%</div></label>
+            <label class="radio-option"><input type="radio" name="doyakRate" value="4.6"><div class="radio-label" style="padding:10px 6px;font-size:12px">4.6%</div></label>
+            <label class="radio-option"><input type="radio" name="doyakRate" value="3.7"><div class="radio-label" style="padding:10px 6px;font-size:12px">3.7%</div></label>
+            <label class="radio-option"><input type="radio" name="doyakRate" value="3.0"><div class="radio-label" style="padding:10px 6px;font-size:12px">3.0%</div></label>
+            <label class="radio-option"><input type="radio" name="doyakRate" value="0"><div class="radio-label" style="padding:10px 6px;font-size:12px">없음</div></label>
+          </div>
+        </div>
+        <div id="doyakRatePreview" style="display:none;margin-top:10px">
+          <table class="doyak-table" id="doyakRateTable">
+            <thead><tr><th>소득 구간</th><th>기여금 비율</th><th>월 기여금 (70만 납입)</th></tr></thead>
+            <tbody>
+              <tr data-income="2400"><td>2,400만원 이하</td><td>6.0%</td><td>약 3.3만원</td></tr>
+              <tr data-income="3600"><td>3,600만원 이하</td><td>4.6%</td><td>약 3.22만원</td></tr>
+              <tr data-income="4800"><td>4,800만원 이하</td><td>3.7%</td><td>약 2.59만원</td></tr>
+              <tr data-income="6000"><td>6,000만원 이하</td><td>3.0%</td><td>약 2.1만원</td></tr>
+              <tr data-income="7500"><td>6,000만원 초과</td><td>없음</td><td>비과세만</td></tr>
+            </tbody>
+          </table>
+          <div style="font-size:11px;color:var(--text3);margin-top:6px">* 2025년 1월 개선 기준 / 매년 유지심사로 비율 변동 가능</div>
+        </div>
+      </div>
+
+      <!-- 도약계좌 원금 -->
+      <div class="field">
+        <label>갈아타기 신청 직전 예상 납입 원금</label>
+        <div class="info-box" style="margin-bottom:10px">
+          💡 갈아타기는 <strong>2026년 6월</strong>에 신청하므로,<br>
+          현재 원금 + 앞으로 납입할 금액까지 합산해서 입력해주세요.<br>
+          <span style="font-size:12px">예) 현재 2,240만원 + 5월 70만원 + 6월 70만원 = 약 2,380만원</span>
+        </div>
+        <div class="input-with-unit"><input type="number" id="doyakPrincipal" placeholder="예: 2380" oninput="updateProgress()"><span class="unit">만원</span></div>
+        <div class="hint">* 갈아타기(특별중도해지) 시 이 원금 + 그간 정부기여금 전액을 돌려받아요</div>
+      </div>
+
+      <!-- 도약계좌 가입 기간 -->
+      <div class="field">
+        <label>도약계좌 납입 기간 (현재 기준)</label>
+        <div class="input-with-unit"><input type="number" id="doyakMonthsUsed" placeholder="예: 32" max="60" oninput="updateProgress()"><span class="unit">개월</span></div>
+        <div class="hint">* 36개월(3년) 이상이면 일반해지 시 기여금 60% + 비과세 유지<br>* 갈아타기(특별해지)는 기간에 관계없이 기여금 전액 + 비과세 유지</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-calc" onclick="calculate()">🔍 내 기여금 & 갈아타기 분석하기</button>
+
+  <!-- 결과 -->
+  <div id="result" style="margin-top:28px">
+    <div id="ineligible" style="display:none">
+      <div class="ineligible-box fade-up">
+        <div class="ineligible-icon">😢</div>
+        <div class="ineligible-title" id="ineligibleTitle">가입 대상이 아닙니다</div>
+        <div class="ineligible-text" id="ineligibleReason"></div>
+      </div>
+    </div>
+
+    <div id="eligible" style="display:none">
+      <div class="contrib-box fade-up">
+        <div class="result-badge badge-blue" id="resultBadge">🎯 기여금 대상</div>
+        <div class="contrib-percent" id="resultPercent">6%</div>
+        <div class="contrib-label">정부 기여금 매칭 비율</div>
+        <div class="contrib-type" id="resultType">일반형</div>
+      </div>
+
+      <div class="card fade-up">
+        <div class="card-title"><div class="dot"></div>청년미래적금 예상 수령액 (3년)</div>
+        <div class="breakdown" id="futureBreakdown"></div>
+      </div>
+
+      <div id="compareSection" style="display:none">
+        <div class="card fade-up">
+          <div class="card-title"><div class="dot"></div>청년도약계좌 vs 청년미래적금 비교</div>
+          <div class="compare-grid" id="compareGrid"></div>
+          <div class="warn-inline" style="margin-top:4px;margin-bottom:0">
+            ⚠️ 도약계좌 기여금은 매년 유지심사로 재산정되므로 실제 수령액과 차이가 있을 수 있어요.
+          </div>
+        </div>
+
+        <div id="switchAnalysis" class="card fade-up" style="display:none">
+          <div class="card-title"><div class="dot"></div>갈아타기 시뮬레이션</div>
+          <div id="switchContent"></div>
+        </div>
+
+        <div id="recBox" class="rec-box fade-up"></div>
+
+        <div class="card fade-up" id="switchProcedure" style="display:none">
+          <div class="card-title"><div class="dot"></div>갈아타기 절차 (비대면)</div>
+          <div class="switch-steps">
+            <div class="switch-step"><div class="switch-step-num">1</div><div class="switch-step-text">청년미래적금 가입 신청 (금융기관 앱)</div></div>
+            <div class="switch-step"><div class="switch-step-num">2</div><div class="switch-step-text">청년미래적금 가입대상 통보 확인</div></div>
+            <div class="switch-step"><div class="switch-step-num">3</div><div class="switch-step-text">청년미래적금 계좌 개설 (납입 일시 제한)</div></div>
+            <div class="switch-step"><div class="switch-step-num">4</div><div class="switch-step-text">청년도약계좌 특별중도해지 → 기여금 전액 + 비과세 유지! 🎉</div></div>
+            <div class="switch-step"><div class="switch-step-num">5</div><div class="switch-step-text">청년미래적금 납입 개시</div></div>
+          </div>
+          <div style="font-size:12px;color:var(--text3);margin-top:14px;line-height:1.6">세부 절차는 서민금융진흥원 카카오톡 알림톡으로 별도 안내 예정<br>☎ 서민금융콜센터 1397 (바로 3번)</div>
+        </div>
+      </div>
+
+      <!-- 중도해지 안내 -->
+      <div class="card fade-up">
+        <div class="card-title"><div class="dot"></div>중도해지 시 주의사항</div>
+        <div style="font-size:14px;color:var(--text2);line-height:2.3">
+          <div><span class="tag tag-red">청년미래적금 일반해지</span> 정부 기여금 + 비과세 혜택 <strong style="color:var(--red)">모두 소멸</strong></div>
+          <div style="margin-top:4px"><span class="tag tag-green">청년미래적금 특별해지</span> 사망·해외이주·퇴직·폐업·장기질병(3개월+) → 혜택 유지</div>
+          <hr class="divider">
+          <div><span class="tag tag-gold">도약계좌 3년+ 일반해지</span> 기여금 <strong>60% 수령</strong> + 비과세 유지</div>
+          <div style="margin-top:4px"><span class="tag tag-red">도약계좌 3년 미만 해지</span> 기여금·비과세 <strong style="color:var(--red)">모두 소멸</strong></div>
+          <div style="margin-top:4px"><span class="tag tag-green">도약계좌 → 갈아타기(특별해지)</span> 기여금 <strong>전액</strong> + 비과세 유지 ✅</div>
+        </div>
+      </div>
+
+      <div id="warnSection"></div>
+      <button class="btn-reset" onclick="reset()">↩ 다시 계산하기</button>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div style="margin-top:36px">
+    <div style="font-size:13px;font-weight:800;color:var(--accent);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px"><div class="dot"></div>자주 묻는 질문</div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">6월 가입 시 2024년 소득으로 심사되나요? <span class="faq-arrow">▼</span></div><div class="faq-a">공식 보도자료에 따르면 "전년도 확정소득은 매년 7월 이후 안정적으로 심사에 활용 가능"하다고 명시되어 있어요.<br><br>→ <strong>2026년 6월 가입 시</strong>에는 2025년 소득이 미확정이라 <strong>2024년 소득으로 우선 심사</strong>될 가능성이 높아요.<br>→ <strong>2026년 7월 이후 가입</strong>하면 2025년 소득 기준 적용 가능성이 높아요.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">도약계좌 기여금이 매년 바뀌나요? <span class="faq-arrow">▼</span></div><div class="faq-a">네! 청년도약계좌는 가입 1년 후부터 매년 개인소득을 재확인해 기여금 비율을 재산정합니다.<br><br>• 가입일 기준 1년 주기로 유지심사<br>• 1~6월 심사: 전전년도 소득 기준<br>• 7~12월 심사: 전년도 소득 기준<br>• 재산정된 비율은 다음 심사까지 1년간 적용<br><br>소득이 올라가면 기여금 비율이 낮아질 수 있어요!</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">투잡 근로자는 어떤 기준으로 심사되나요? <span class="faq-arrow">▼</span></div><div class="faq-a">근로소득 외 추가 소득이 있어 종합소득세 신고 대상이 되면, <strong>종합소득 6,300만원 이하</strong> 기준으로 심사될 가능성이 높습니다.<br><br>예) 근로소득 4,000만원 + 부업소득 500만원 = 종합소득 4,500만원 → 종합소득 기준 심사<br><br>※ 정확한 기준은 출시 후 금융기관에 문의하세요.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">가입 기간 중 34세가 넘으면? <span class="faq-arrow">▼</span></div><div class="faq-a">나이 요건은 가입 심사 시에만 확인합니다. 가입 후 34세가 초과되어도 청년미래적금을 계속 유지할 수 있어요!</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">소득이 없는 청년도 가입 가능한가요? <span class="faq-arrow">▼</span></div><div class="faq-a">국세청 소득금액 증명이 가능한 경우에만 가입 가능합니다.<br><br>단, <strong>육아휴직급여</strong> 또는 <strong>군장병급여</strong>만 있는 경우에는 예외적으로 가입 가능!</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">소상공인 매출 3억 초과하면 아예 안 되나요? <span class="faq-arrow">▼</span></div><div class="faq-a">소상공인 자격으로는 불가하지만, <strong>종합소득 6,300만원 이하</strong>라면 일반 소득자 기준으로 가입 가능합니다!</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">중소기업 이직해도 우대형 혜택 유지되나요? <span class="faq-arrow">▼</span></div><div class="faq-a">만기 1개월 전까지 총 29개월 이상 중소기업 재직 시 전체 기간 우대형 인정. 가입 기간 내 이직은 최대 2회까지 허용!</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">청년미래적금 금리는 얼마인가요? <span class="faq-arrow">▼</span></div><div class="faq-a">3년 고정금리 적용 예정이며, 구체적인 금리 수준은 취급 금융기관 확정 후 발표 예정입니다. (현재 미확정)</div></div>
+  </div>
+
+  <!-- 인스타 푸터 -->
+  <div class="insta-footer">
+    <div class="creator-label">MADE BY</div>
+    <a href="https://www.instagram.com/taengstar_" target="_blank" class="insta-link">
+      📸 @taengstar_
+    </a>
+    <div class="desc">별탱의 경제이야기 🌟<br>쉽고 재밌는 재테크 인스타툰을 만들고 있어요<br>인스타그램에서 더 많은 콘텐츠를 만나보세요!</div>
+  </div>
+
+</div>
+
+<script>
+// 2026년 보건복지부 고시 기준 중위소득 (월, 만원)
+const medianIncome2026={1:256.4238,2:419.9292,3:535.9036,4:649.4738,5:755.6719};
+const doyakRates={2400:{rate:6.0},3600:{rate:4.6},4800:{rate:3.7},6000:{rate:3.0},7500:{rate:0}};
+function getMedian(s){return medianIncome2026[Math.min(s,5)];}
+function toggleFaq(el){el.classList.toggle('open');}
+
+function onHouseholdChange(){
+  const size=parseInt(document.querySelector('input[name="householdSize"]:checked')?.value||0);
+  if(!size)return;
+  const m=getMedian(size);
+  document.getElementById('medianPreview').style.display='block';
+  document.getElementById('median100').textContent='월 '+m.toFixed(1)+'만원';
+  document.getElementById('median150').textContent='월 '+(m*1.5).toFixed(1)+'만원 이하';
+  document.getElementById('median200').textContent='월 '+(m*2.0).toFixed(1)+'만원 이하';
+  updateProgress();
+}
+
+function onSliderChange(){
+  document.getElementById('depositVal').textContent=document.getElementById('deposit').value+'만원';
+  updateProgress();
+}
+
+function onJobTypeChange(){
+  const jt=getJobType();
+  const isSelf=jt==='self_small';
+  const isTwo=jt==='employee_plus';
+  document.getElementById('field_salary').classList.toggle('visible',!isSelf);
+  document.getElementById('field_revenue').classList.toggle('visible',isSelf);
+  document.getElementById('field_sme_info').classList.toggle('visible',jt==='sme_new');
+  document.getElementById('field_twojob_info').classList.toggle('visible',isTwo);
+  document.getElementById('field_twojob_income').classList.toggle('visible',isTwo);
+  document.getElementById('field_finance_tax').style.display=jt?'block':'none';
+  if(isTwo){
+    document.getElementById('salaryLabel').textContent='2025년 연간 총급여 (근로소득만)';
+    document.getElementById('salaryHint').textContent='* 근로소득만 입력 (추가소득은 아래 종합소득 항목에 합산 입력)';
+  }else{
+    document.getElementById('salaryLabel').textContent='2025년 연간 총급여 (세전)';
+    document.getElementById('salaryHint').textContent='* 근로소득 기준 세전 연봉 전체 금액';
+  }
+  updateProgress();
+}
+
+function onDoyakChange(){
+  const v=document.querySelector('input[name="hasDoyak"]:checked')?.value;
+  document.getElementById('field_doyak').classList.toggle('visible',v==='yes');
+  updateProgress();
+}
+
+function onDoyakIncomeChange(){
+  const v=document.querySelector('input[name="doyakIncome"]:checked')?.value;
+  if(!v)return;
+  if(v==='custom'){
+    document.getElementById('doyakCustomRate').style.display='block';
+    document.getElementById('doyakRatePreview').style.display='none';
+    return;
+  }
+  document.getElementById('doyakCustomRate').style.display='none';
+  document.getElementById('doyakRatePreview').style.display='block';
+  document.querySelectorAll('#doyakRateTable tbody tr').forEach(r=>{
+    r.classList.toggle('selected',r.dataset.income===v);
+  });
+  updateProgress();
+}
+
+function getJobType(){return document.querySelector('input[name="jobType"]:checked')?.value;}
+
+function getDoyakRate(){
+  const v=document.querySelector('input[name="doyakIncome"]:checked')?.value;
+  if(v==='custom'){const r=document.querySelector('input[name="doyakRate"]:checked');return r?parseFloat(r.value):0;}
+  if(v)return doyakRates[parseInt(v)]?.rate||0;
+  return 0;
+}
+
+function updateProgress(){
+  const a=document.getElementById('age').value;
+  const j=getJobType();
+  const s=document.querySelector('input[name="householdSize"]:checked')?.value;
+  const h=document.getElementById('householdIncome').value;
+  let f=0;
+  if(a)f+=25;if(j)f+=25;if(s)f+=25;if(h)f+=25;
+  document.getElementById('progressFill').style.width=f+'%';
+}
+
+function calculate(){
+  const age=parseInt(document.getElementById('age').value);
+  const jt=getJobType();
+  const salary=parseInt(document.getElementById('salary').value)||0;
+  const jonghabTwo=parseInt(document.getElementById('jonghabTwoJob')?.value)||0;
+  const revenue=parseInt(document.getElementById('revenue').value)||0;
+  const jonghabSoduk=parseInt(document.getElementById('jonghabSoduk')?.value)||0;
+  const houseSize=parseInt(document.querySelector('input[name="householdSize"]:checked')?.value||0);
+  const houseIncome=parseFloat(document.getElementById('householdIncome').value)||0;
+  const deposit=parseInt(document.getElementById('deposit').value);
+  const hasDoyak=document.querySelector('input[name="hasDoyak"]:checked')?.value;
+  const doyakDeposit=parseInt(document.getElementById('doyakDeposit').value)||0;
+  const doyakRate=getDoyakRate();
+  const doyakPrincipal=parseInt(document.getElementById('doyakPrincipal').value)||0;
+  const doyakMonthsUsed=parseInt(document.getElementById('doyakMonthsUsed').value)||0;
+  const financeTax=document.querySelector('input[name="financeTax"]:checked')?.value;
+
+  document.getElementById('result').style.display='block';
+  document.getElementById('ineligible').style.display='none';
+  document.getElementById('eligible').style.display='none';
+
+  if(!age||!jt||!houseSize||!houseIncome){
+    alert('모든 항목을 입력해주세요!');
+    document.getElementById('result').style.display='none';
+    return;
+  }
+
+  if(financeTax==='yes'){showIneligible('가입 제한 대상','직전 3개년(2022~2024년) 중 1회 이상 금융소득 종합과세 대상자는 청년미래적금 가입이 제한됩니다.');return;}
+  if(age<19){showIneligible('나이 미달','만 '+age+'세는 가입 최소 연령(19세)에 해당하지 않습니다.');return;}
+  if(age>34){showIneligible('나이 초과','만 '+age+'세는 기본 가입 대상(19~34세)을 초과합니다.<br><br>⭐ 병역 이행자는 병역 기간(최대 6년)을 차감한 나이로 재확인하세요<br>⭐ 1991년 1월~8월생(만 35세)은 예외 가입 가능합니다');return;}
+
+  const median=getMedian(houseSize);
+  const within200=houseIncome<=median*2.0;
+  const within150=houseIncome<=median*1.5;
+
+  let contribRate=0,contribType='',badgeClass='';
+
+  if(jt==='employee'){
+    if(salary>7500){showIneligible('소득 초과','2025년 총급여 '+salary+'만원은 가입 상한선(7,500만원)을 초과합니다.');return;}
+    if(!within200){showIneligible('가구소득 초과',houseSize+'인 가구 기준 중위소득 200% = 월 '+(median*2).toFixed(1)+'만원<br>현재 입력한 가구 월소득: '+houseIncome+'만원');return;}
+    if(salary<=6000){contribRate=6;contribType='일반형';badgeClass='badge-blue';}
+    else{contribRate=0;contribType='비과세 혜택만 (기여금 없음)';badgeClass='badge-gold';}
+
+  }else if(jt==='employee_plus'){
+    const effIncome=jonghabTwo>0?jonghabTwo:salary;
+    if(effIncome>6300){showIneligible('종합소득 초과','투잡 근로자 종합소득 '+effIncome+'만원은 가입 상한선(6,300만원)을 초과합니다.<br><span style="font-size:12px">※ 투잡 근로자는 종합소득 기준으로 심사됩니다 (출시 후 금융기관 확인 필요)</span>');return;}
+    if(!within200){showIneligible('가구소득 초과',houseSize+'인 가구 기준 중위소득 200% = 월 '+(median*2).toFixed(1)+'만원');return;}
+    if(effIncome<=4800){contribRate=6;contribType='일반형 (종합소득 기준)';badgeClass='badge-blue';}
+    else{contribRate=0;contribType='비과세 혜택만 (종합소득 기준)';badgeClass='badge-gold';}
+
+  }else if(jt==='sme_new'){
+    if(salary>7500){showIneligible('소득 초과','2025년 총급여 '+salary+'만원은 가입 상한선(7,500만원)을 초과합니다.');return;}
+    if(!within200){showIneligible('가구소득 초과',houseSize+'인 가구 기준 중위소득 200% = 월 '+(median*2).toFixed(1)+'만원');return;}
+    if(salary<=6000&&within200){contribRate=12;contribType='우대형 (중소기업 신규취업자)';badgeClass='badge-green';}
+    else{contribRate=0;contribType='비과세 혜택만 (기여금 없음)';badgeClass='badge-gold';}
+
+  }else if(jt==='sme_employed'){
+    if(salary>7500){showIneligible('소득 초과','2025년 총급여 '+salary+'만원은 가입 상한선(7,500만원)을 초과합니다.');return;}
+    if(!within200){showIneligible('가구소득 초과',houseSize+'인 가구 기준 중위소득 200% = 월 '+(median*2).toFixed(1)+'만원');return;}
+    if(salary<=3600&&within150){contribRate=12;contribType='우대형 (중소기업 재직자)';badgeClass='badge-green';}
+    else if(salary<=6000&&within200){contribRate=6;contribType='일반형';badgeClass='badge-blue';}
+    else{contribRate=0;contribType='비과세 혜택만 (기여금 없음)';badgeClass='badge-gold';}
+
+  }else if(jt==='self_small'){
+    if(revenue>30000){
+      if(jonghabSoduk>0&&jonghabSoduk<=6300&&within200){contribRate=6;contribType='일반형 (매출초과→종합소득 기준)';badgeClass='badge-blue';}
+      else if(jonghabSoduk>6300){showIneligible('소득·매출 모두 초과','연 매출 '+revenue+'만원(3억 초과) + 종합소득 '+jonghabSoduk+'만원(6,300만원 초과)으로 가입이 불가합니다.');return;}
+      else{showIneligible('매출 초과 — 종합소득 확인 필요','연 매출이 3억을 초과하는 경우 종합소득 기준으로 심사합니다.<br>위의 종합소득 항목을 입력해주세요.<br><span style="font-size:12px">종합소득 6,300만원 이하라면 일반소득자로 가입 가능!</span>');return;}
+    }else if(!within200){
+      showIneligible('가구소득 초과',houseSize+'인 가구 기준 중위소득 200% = 월 '+(median*2).toFixed(1)+'만원');return;
+    }else{
+      if(revenue<=10000&&within150){contribRate=12;contribType='우대형 (소상공인)';badgeClass='badge-green';}
+      else{contribRate=6;contribType='일반형 (소상공인)';badgeClass='badge-blue';}
+    }
+  }
+
+  document.getElementById('eligible').style.display='block';
+  document.getElementById('resultBadge').className='result-badge '+badgeClass;
+  document.getElementById('resultBadge').textContent=contribRate>0?'🎯 기여금 대상':'💸 비과세 혜택';
+  document.getElementById('resultPercent').textContent=contribRate>0?contribRate+'%':'비과세';
+  document.getElementById('resultType').textContent=contribType;
+
+  // 미래적금 계산
+  const months=36,totalDeposit=deposit*months;
+  const totalContrib=deposit*months*(contribRate/100);
+  const r=0.04;
+  let interest=0;
+  for(let i=1;i<=months;i++) interest+=deposit*(r/12)*(months-i+1);
+  interest=Math.round(interest);
+  const totalFuture=totalDeposit+totalContrib+interest;
+
+  document.getElementById('futureBreakdown').innerHTML=`
+    <div class="breakdown-row"><span class="key">월 납입금</span><span class="val">${deposit}만원</span></div>
+    <div class="breakdown-row"><span class="key">총 납입액 (3년)</span><span class="val">${totalDeposit}만원</span></div>
+    <div class="breakdown-row"><span class="key">정부 기여금 (${contribRate}%)</span><span class="val green">+${Math.round(totalContrib)}만원</span></div>
+    <div class="breakdown-row"><span class="key">이자 수익 (연 4% 가정)</span><span class="val blue">+${interest}만원</span></div>
+    <div class="breakdown-row"><span class="key" style="font-weight:800;color:var(--text)">예상 만기 수령액</span><span class="val" style="font-size:18px;color:var(--accent)">≈ ${Math.round(totalFuture)}만원</span></div>
+  `;
+
+  // 도약계좌 비교
+  if(hasDoyak==='yes'&&doyakDeposit>0){
+    document.getElementById('compareSection').style.display='block';
+    const doyakRemaining=Math.max(60-doyakMonthsUsed,0);
+    const doyakFutureTotal=doyakDeposit*doyakRemaining;
+    const doyakFutureContrib=doyakDeposit*doyakRemaining*(doyakRate/100);
+    let doyakFutureInterest=0;
+    for(let i=1;i<=doyakRemaining;i++) doyakFutureInterest+=doyakDeposit*(r/12)*(doyakRemaining-i+1);
+    doyakFutureInterest=Math.round(doyakFutureInterest);
+    const alreadyContrib=Math.round(doyakPrincipal*(doyakRate/100));
+    const alreadyInterest=Math.round((doyakPrincipal+alreadyContrib)*r*(doyakRemaining/12));
+    const totalDoyak=doyakFutureTotal+doyakFutureContrib+doyakFutureInterest+(doyakPrincipal+alreadyContrib+alreadyInterest);
+    const fa=((totalFuture/totalDeposit)-1)/3*100;
+    const futureWins=contribRate>=12||(contribRate>=6&&doyakRate<=3.7);
+    const doyakLabel=doyakMonthsUsed>0?'잔여 '+doyakRemaining+'개월 유지 시':'5년 만기';
+
+    document.getElementById('compareGrid').innerHTML=`
+      <div class="compare-card ${futureWins?'winner':'loser'}">
+        ${futureWins?'<div class="winner-badge">🏆 유리</div>':''}
+        <h3>청년미래적금</h3>
+        <div class="compare-amount">${Math.round(totalFuture)}만원</div>
+        <div class="compare-detail">3년 만기 | 월 ${deposit}만원<br>기여금 ${contribRate}%<br>연환산 ≈ <strong>${fa.toFixed(1)}%</strong></div>
+      </div>
+      <div class="compare-card ${!futureWins?'winner':'loser'}">
+        ${!futureWins?'<div class="winner-badge">🏆 유리</div>':''}
+        <h3>청년도약계좌</h3>
+        <div class="compare-amount">${Math.round(totalDoyak)}만원</div>
+        <div class="compare-detail">${doyakLabel} | 월 ${doyakDeposit}만원<br>기여금 ${doyakRate}% (매년 재산정)<br>기납입 원금 ${doyakPrincipal}만원 포함</div>
+      </div>
+    `;
+
+    // 갈아타기 시뮬레이션
+    if(doyakPrincipal>0){
+      document.getElementById('switchAnalysis').style.display='block';
+      const refund=Math.round(doyakPrincipal*(1+doyakRate/100));
+      const is3Y=doyakMonthsUsed>=36;
+      document.getElementById('switchContent').innerHTML=`
+        <div class="breakdown">
+          <div class="breakdown-row"><span class="key">갈아타기 직전 예상 납입 원금</span><span class="val">${doyakPrincipal}만원</span></div>
+          <div class="breakdown-row"><span class="key">갈아타기 환급 예상 (원금 + 기여금 전액)</span><span class="val gold">+${refund}만원</span></div>
+          <div class="breakdown-row"><span class="key">청년미래적금 3년 수령액</span><span class="val blue">${Math.round(totalFuture)}만원</span></div>
+          <div class="breakdown-row"><span class="key" style="font-weight:800;color:var(--text)">갈아타기 후 총 자산</span><span class="val green" style="font-size:16px">≈ ${Math.round(totalFuture+refund)}만원</span></div>
+        </div>
+        ${is3Y?
+          '<div class="info-box" style="margin-top:8px">✅ '+doyakMonthsUsed+'개월 납입 → 3년 이상! 갈아타기(특별해지)로 기여금 전액 + 비과세 모두 유지!</div>':
+          '<div class="warn-inline" style="margin-top:8px">⚠️ '+doyakMonthsUsed+'개월 납입 → 아직 3년 미만이지만, 갈아타기(특별해지)는 기여금 전액 + 비과세 유지 가능!</div>'
+        }
+        <div style="font-size:11px;color:var(--text3);margin-top:8px">* 실제 환급액은 금융기관 확인 필요 / 도약계좌 기여금은 매년 재심사로 변동될 수 있어 실제 금액과 차이 있을 수 있음</div>
+      `;
+    }
+
+    // 추천 메시지
+    const recBox=document.getElementById('recBox');
+    if(contribRate===12){
+      recBox.className='rec-box rec-future fade-up';
+      recBox.innerHTML='<div class="result-badge badge-green" style="margin-bottom:10px">✅ 청년미래적금 강력 추천</div><div class="rec-title">🎯 갈아타기 적극 검토하세요!</div><div class="rec-text">우대형 12%! 도약계좌 최대 기여금(6.0%)의 2배예요.<br><br>✔ 갈아타기(특별해지) 시 도약계좌 기여금 전액 환급<br>✔ 비과세 혜택 유지<br>✔ 3년 후 자유로운 자금 운용 가능<br><br><strong>⚠️ 2026년 6월 최초 가입기간에만 갈아타기 가능!</strong></div>';
+      document.getElementById('switchProcedure').style.display='block';
+    }else if(doyakRate>=6.0&&contribRate===6){
+      recBox.className='rec-box rec-neutral fade-up';
+      recBox.innerHTML='<div class="result-badge badge-purple" style="margin-bottom:10px">⚖️ 신중한 비교 필요</div><div class="rec-title">기여금이 비슷해요</div><div class="rec-text">✔ <strong>3년 내 목돈 필요</strong> → 청년미래적금 갈아타기<br>✔ <strong>5년 후 더 큰 목돈</strong> → 청년도약계좌 유지<br>✔ <strong>월 70만원 여유 있음</strong> → 도약계좌 납입한도 더 큼<br>✔ <strong>향후 소득 증가 예상</strong> → 도약계좌 기여금 재심사 시 비율 낮아질 수 있으니 미래적금 유리<br><br>금리 확정 후 재비교를 권장해요!</div>';
+    }else if(doyakRate>contribRate){
+      recBox.className='rec-box rec-doyak fade-up';
+      recBox.innerHTML='<div class="result-badge badge-gold" style="margin-bottom:10px">🏦 도약계좌 유지 추천</div><div class="rec-title">청년도약계좌를 유지하세요</div><div class="rec-text">현재 기준으로 미래적금보다 도약계좌 기여금이 높아요.<br><br>다만, 향후 소득이 올라가면 도약계좌 기여금 비율이 낮아질 수 있으니 소득 변동 시 재비교해보세요!</div>';
+    }else{
+      recBox.className='rec-box rec-neutral fade-up';
+      recBox.innerHTML='<div class="result-badge badge-blue" style="margin-bottom:10px">💡 목표 시기에 따라 결정</div><div class="rec-title">만기 기간과 목돈 계획이 핵심!</div><div class="rec-text">✔ <strong>3년 내 목돈 필요</strong> → 청년미래적금<br>✔ <strong>5년 장기 목돈</strong> → 청년도약계좌 유지<br>✔ <strong>향후 소득 증가 예상</strong> → 도약계좌 기여금 재심사로 비율 낮아질 수 있음<br><br>금리 수준 확정 후 재비교를 권장합니다.</div>';
+    }
+  }else{
+    document.getElementById('compareSection').style.display='none';
+  }
+
+  document.getElementById('warnSection').innerHTML=`
+    <div class="warn-box">
+      ⚠️ 공식 계산기가 아닙니다.<br>
+      • 소득은 <strong>2025년(작년) 기준</strong>으로 입력하세요. 6월 가입 시 2024년 소득 기준 적용 가능성 있음<br>
+      • 이자율은 연 4% 가정 (실제 금리 미확정)<br>
+      • 가구 중위소득은 <strong>2026년 보건복지부 고시 기준</strong> 적용 (청년미래적금 적용 연도 미공식 확인)<br>
+      • 도약계좌 기여금은 매년 재심사로 변동 가능 — 실제 수령액은 금융기관 확인 필요<br>
+      • 투잡 소득 심사 기준은 출시 후 확인 필요
+    </div>
+  `;
+
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function showIneligible(title,msg){
+  document.getElementById('ineligible').style.display='block';
+  document.getElementById('ineligibleTitle').textContent=title;
+  document.getElementById('ineligibleReason').innerHTML=msg;
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function reset(){document.getElementById('result').style.display='none';window.scrollTo({top:0,behavior:'smooth'});}
+</script>
+</body>
+</html>
